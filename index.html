@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anatomija - Medicinski fakultet Univerziteta u Tuzli</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    #card {
+      width: 300px;
+      height: 200px;
+      background-color: white;
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      margin-bottom: 20px;
+      font-size: 18px;
+      perspective: 1000px;
+      position: relative;
+    }
+
+    .card-face {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      backface-visibility: hidden;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: absolute;
+    }
+
+    .card-front {
+      background-color: white;
+      z-index: 2;
+      transform: rotateY(0deg);
+    }
+
+    .card-back {
+      transform: rotateY(180deg);
+      background-color: #007bff;
+      color: white;
+      z-index: 1;
+    }
+
+    #card.flipped .card-front {
+      transform: rotateY(-180deg);
+    }
+
+    #card.flipped .card-back {
+      transform: rotateY(0deg);
+      z-index: 2;
+    }
+
+    .button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 5px;
+    }
+
+    .button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    #wowEffect {
+      display: none;
+      font-size: 24px;
+      color: green;
+      margin-top: 20px;
+      animation: wow-animation 1s ease-in-out infinite;
+    }
+
+    @keyframes wow-animation {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.2);
+      }
+    }
+
+    .about {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+      padding: 0 20px;
+    }
+  </style>
+  <script>
+    let questionPools = [
+      {
+        "name": "Torax ili KVS",
+        "questions": [
+          "Plućne vene",
+          "A.coronaria cordis sinistra",
+          "Projekcija srca i srčanih ušća",
+          "Valvae cordis",
+          "Vene srca",
+          "Epicardium",
+          "Endocardium",
+          "Vaskularizacija i inervacija srca",
+          "Specifična sprovodna muskulatura srca",
+          "Fibrozni skelet srca",
+          "Atrium dextrum",
+          "Atrium sinistrum",
+          "Ventriculus dexter",
+          "Ventriculus sinister",
+          "Aorta",
+          "Pericardium",
+          "Myocardium",
+          "Vv.brachiocephalicae",
+          "Truncus pulmonalis",
+          "Ostia cordis",
+          "Muskulatura atrija",
+          "Sistem aortae",
+          "V.hemiaygos",
+          "Aorta thoracica",
+          "A.coronaria cordis dextra",
+          "Vanjski izgled srca",
+          "Septa cordis"
+        ]
+      },
+      {
+        "name": "Gornji ekstremiteti (Mišići i fose)",
+        "questions": [
+          "Art.radiocarpea",
+          "Artt.metacarpophalangeae",
+          "Artt.metatarso phalangeae",
+          "Artt.costovertebrales",
+          "Musculi brachii",
+          "Trigonum deltoideopectorale",
+          "Artt.humeri et cubiti",
+          "M.trapezius",
+          "M.deltoideus",
+          "Fascia antebrachii",
+          "N.medianus",
+          "Mišići šake",
+          "Fascije šake",
+          "Mišići podlaktice (stražnja grupa)",
+          "N.axillaris",
+          "Mišići nadlaktice",
+          "A.brachialis",
+          "Fossa axillaris",
+          "Arcus palmaris superficialis",
+          "Nervi ramenog pojasa",
+          "Leđni mišići",
+          "Mišići ramena",
+          "N.musculocutaneus",
+          "Mišići thenara",
+          "Arcus palmaris profundus",
+          "Bronchus principalis sinister",
+          "Mišići hypothenara"
+        ]
+      },
+      {
+        "name": "Abdomen",
+        "questions": [
+          "Intestinum rectum",
+          "Intestinum colon",
+          "Mesenterium",
+          "Colon transversum",
+          "Mesogastrium dorsale",
+          "Ventriculus",
+          "Intestinum tenue mesenteriale",
+          "Mesenterium ventrale",
+          "Colon descendens",
+          "Colon ascendens",
+          "Fascia abdominis",
+          "V.portae",
+          "Hepar",
+          "Vesica fellea s.biliaries",
+          "Primarni peritoneum",
+          "Krvotok jetre",
+          "Tok krvnih žila u lienu",
+          "Bursa omentalis",
+          "Spatium supraomentale",
+          "Ekstrahepatični žučni vodovi",
+          "Omentum maius",
+          "Omentum minus",
+          "Intestinum caecum",
+          "Colon sigmoideum",
+          "Lien",
+          "A.iliaca externa",
+          "Trbušni mišići",
+          "N.ilioinguinalis",
+          "Canalis inguinalis",
+          "Spatium retroperitoneale abdominis",
+          "Peritoneum slezene i njene peritonealne veze",
+          "Mišići dna zdjelice",
+          "Peritoneum jetre i njene peritonealne veze",
+          "V.cava inferior",
+          "Mišići zdjelice"
+        ]
+      },
+      {
+        "name": "Donji ekstremiteti (Mišići i fose)",
+        "questions": [
+          "Art.talocruralis",
+          "Art.pedis",
+          "Fossa poplitea",
+          "Art.subtalaris",
+          "Art.tarsi transversa Chopart",
+          "M.ischiadicus",
+          "Fascia lata",
+          "Sulci crurales (medialis et lateralis)",
+          "Musculi cruris",
+          "N.cutaneus femoris lateralis",
+          "N.femoralis",
+          "A.femoralis",
+          "N.genitofemoralis",
+          "Canalis adductorius"
+        ]
+      },
+      {
+        "name": "Urogenitalni",
+        "questions": [
+          "Ren dexter",
+          "Tok krvnih žila u bubregu",
+          "Ren sinister",
+          "Limfa pelvis",
+          "Gll.suprarenales",
+          "Diaphragma pudendale",
+          "Ductus deferens",
+          "Ovarium",
+          "Vesica urinaria",
+          "Perineum",
+          "Vagina",
+          "Prostata",
+          "Testis",
+          "Penis",
+          "Urethra feminina",
+          "Fossa ischiorectalis",
+          "Vesiculae seminales"
+        ]
+      },
+      {
+        "name": "Zglobovi",
+        "questions": [
+          "Art.sacroiliaca",
+          "Symphysis pubica",
+          "Junctura fibrosa",
+          "Capsula articularis",
+          "Elementi zgloba",
+          "Artt.juncturae synoviales",
+          "Articulatio humeri",
+          "Junctura cartilagineae",
+          "Syndesmosis occipitoaxialis",
+          "Artt.interphalangeae",
+          "Art.radiocarpea",
+          "Art.talocruralis",
+          "Art.tarsometatarsea Lisfranc",
+          "Art.pedis",
+          "Art.genus",
+          "Art.atlantoaxialis",
+          "Junctura radioulnaris",
+          "Sindesmotski spojevi karlice",
+          "Spojevi medu kralješcima",
+          "Junctura tibiofibularis",
+          "Zglobovi sa dvije osovine",
+          "Junctura ossea",
+          "Zglobovi sa jednom osovinom",
+          "Zglobovi sa tri i više osovina",
+          "Junctura fibrosa u užem smislu (syndesmosis)",
+          "Vrste kretnji u zglobovima"
+        ]
+      },
+      {
+        "name": "Kost",
+        "questions": [
+          "Os coxae",
+          "Os metacarpalia",
+          "Clavicula",
+          "Ossa tarsi",
+          "Vertebrae cervicales",
+          "Vertebrae thoracicae",
+          "Vertebrae lumbales",
+          "Femur",
+          "Tibia",
+          "Radius",
+          "Pelvis minor",
+          "Os trapezoideum",
+          "Pelvis maior",
+          "Os cuboideum",
+          "Os trapezium",
+          "Ossa cuneiformia",
+          "Linea terminalis pelvis",
+          "Axis",
+          "Vertebrae cervicales VI et VII",
+          "Os lunatum",
+          "Atlas",
+          "Vertebrae spuriae",
+          "Vertebrae verae",
+          "Os capitatum",
+          "Os triquetrum",
+          "Os scaphoideum",
+          "Os naviculare pedis"
+        ]
+      },
+      {
+        "name": "Urogenitalni/Probava",
+        "questions": [
+          "Limfa pelvis",
+          "Intestinum crassum",
+          "Colon sigmoideum",
+          "Duodenum",
+          "Colon ascendens",
+          "Peritoneum",
+          "Omentum maius",
+          "Vesica fellea",
+          "Mesocolon transversum",
+          "Intestinum rectum",
+          "Omentum minus"
+        ]
+      },
+      {
+        "name": "Respiratorni",
+        "questions": [
+          "Pulmo dexter",
+          "Bronchus principalis sinister",
+          "Bronchi principales",
+          "Segmenta bronchopulmonalia",
+          "Alveoli pulmonis",
+          "Granice pluća",
+          "Recessusi pleurae",
+          "Mediastinum",
+          "Septa interalveolaria",
+          "Pleura",
+          "Oesophagus",
+          "Ductus lymphaticus dexter",
+          "Plucni acinus",
+          "Ductus thoracicus",
+          "Trachea",
+          "Grananje bronha u plućima"
+        ]
+      },
+      {
+        "name": "Kardiovaskularni Sistem",
+        "questions": [
+          "Arteriae coronariae cordis",
+          "Arteriae pulmonalis",
+          "A.coronaria cordis",
+          "Valvae cordis",
+          "Pericardium",
+          "Myocardium",
+          "Septa cordis",
+          "Limfa toraksa",
+          "A.coronaria cordis dextra",
+          "V.cava inferior",
+          "Truncus brachiocephalicus",
+          "Aorta",
+          "Vv.brachiocephalicae",
+          "Ostia cordis",
+          "Muskulatura atrija",
+          "Sistem aortae",
+          "V.hemiaygos",
+          "Aorta thoracica",
+          "A.radialis",
+          "V.azygos"
+        ]
+      }
+    ];
+
+    questionPools = questionPools.map(pool => {
+      pool.questions = shuffleArray(pool.questions);
+      return pool;
+    });
+
+    let usedQuestions = [];
+    let currentPoolIndex = 0;
+    let currentQuestionIndex = 0;
+    let substituteUsed = false;
+    let happyCount = 0;
+    let substitutionUsedOnce = false;
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function pullCard() {
+      if (currentPoolIndex >= questionPools.length) {
+        displayMessage("No more questions available!");
+        disableButtons();
+        return;
+      }
+
+      const pool = questionPools[currentPoolIndex].questions;
+
+      if (currentQuestionIndex >= pool.length) {
+        currentPoolIndex++;
+        currentQuestionIndex = 0;
+        pullCard();
+        return;
+      }
+
+      const question = pool[currentQuestionIndex];
+      usedQuestions.push(question);
+
+      document.getElementById('card').classList.remove('flipped'); // Ensure the card isn't flipped
+      document.querySelector('#card .card-back').textContent = question; // Update the content
+      document.getElementById('card').classList.add('flipped'); // Flip the card to show the content
+
+      document.getElementById('pullButton').style.display = 'none';
+      document.getElementById('decisionButtons').style.display = 'block';
+      checkSubstituteAvailability();
+    }
+
+    function substituteCard() {
+      if (substituteUsed || substitutionUsedOnce || currentQuestionIndex >= questionPools[currentPoolIndex].questions.length) {
+        displayMessage("No more substitutes available!");
+        disableSubstituteButton();
+        return;
+      }
+
+      const pool = questionPools[currentPoolIndex].questions;
+      let availableQuestions = pool.filter(q => !usedQuestions.includes(q));
+
+      if (availableQuestions.length === 0) {
+        displayMessage("Nema vise zamjena!");
+        disableSubstituteButton();
+        return;
+      }
+
+      const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+      const question = availableQuestions[randomIndex];
+
+      usedQuestions.push(question);
+      document.getElementById('card').classList.remove('flipped');
+      document.querySelector('#card .card-back').textContent = question;
+      document.getElementById('card').classList.add('flipped');
+
+      substituteUsed = true;
+      substitutionUsedOnce = true;
+      disableSubstituteButton();
+    }
+
+    function happyWithAnswer() {
+      happyCount += 1;
+      currentQuestionIndex = questionPools[currentPoolIndex].questions.length;
+      document.getElementById('decisionButtons').style.display = 'none';
+
+      document.getElementById('card').classList.remove('flipped'); // Ensure the card isn't flipped
+      // document.getElementById('card').classList.add('flipped'); // Flip the card to show the content
+      if (happyCount === 10) {
+        displayWowEffect();
+      } else {
+        moveToNextPoolOrFinish();
+      }
+    }
+
+    function giveUp() {
+      alert("Odustali ste. Pokusajte ponovo, sretno!");
+      location.reload();
+    }
+
+    function displayMessage(message) {
+      document.querySelector('#card .card-back').textContent = message;
+    }
+
+    function displayMessageFront(message) {
+      document.querySelector('#card .card-front').textContent = message;
+    }
+
+    function disableButtons() {
+      document.getElementById('pullButton').disabled = true;
+      document.getElementById('substituteButton').disabled = true;
+    }
+
+    function disableSubstituteButton() {
+      document.getElementById('substituteButton').disabled = true;
+    }
+
+    function checkSubstituteAvailability() {
+      if (happyCount >= 6 && !substitutionUsedOnce) {
+        document.getElementById('substituteButton').disabled = false;
+      }
+    }
+
+    function displayWowEffect() {
+      document.getElementById('wowEffect').style.display = 'block';
+      disableButtons();
+    }
+
+    function moveToNextPoolOrFinish() {
+      if (currentPoolIndex + 1 < questionPools.length) {
+        displayMessageFront(`Naredna grupa: ${questionPools[currentPoolIndex + 1].name}`);
+      } else {
+        displayMessageFront("No more questions available!");
+        disableButtons();
+      }
+      currentPoolIndex++;
+      currentQuestionIndex = 0;
+      substituteUsed = false;
+      document.getElementById('pullButton').style.display = 'block';
+      document.getElementById('pullButton').disabled = false;
+    }
+  </script>
+</head>
+
+<body>
+  <h1>Anatomija - Medicinski fakultet Univerziteta u Tuzli</h1>
+  <div style="margin-top: 20px;">
+    <div id="card">
+      <div class="card-face card-front">Izvuci karticu za prvu grupu pitanja</div>
+      <div class="card-face card-back"></div>
+    </div>
+  </div>
+  <button id="pullButton" class="button" onclick="pullCard()">Izvuci karticu</button>
+  <div id="decisionButtons" style="display:none;">
+    <button class="button" onclick="happyWithAnswer()">Dalje, zadovoljan/a sam svojim odgovorom</button>
+    <button class="button" onclick="giveUp()">Odustajem</button>
+    <button id="substituteButton" class="button" onclick="substituteCard()" disabled
+      title="Dostupno nakon 6 tačnih odgovora">Zamjensko pitanje</button>
+  </div>
+  <div id="wowEffect">
+    🎉 Wow! Ispit položen! 🎉
+    <button onclick="location.reload()" class="button">Idemo ponovo! :)</button>
+  </div>
+
+  <div class="about" style="margin-top: 60px;">
+    Zamjensko pitanje dostupno nakon 6 tačnih odgovora. <br>
+    Dostupno je 10 grupa pitanja. <br>
+    Sretno! 🍀
+  </div>
+  <div class="about" style="margin-top: 60px;">
+    Ova aplikacija namjenjena je za studente Medicinskog fakulteta Univerziteta u Tuzli.
+  </div>
+  <div class="about">
+    Courtesy of The Gate 2024.
+  </div>
+</body>
+
+</html>
